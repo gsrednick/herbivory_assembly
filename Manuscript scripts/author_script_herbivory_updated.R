@@ -1089,3 +1089,7 @@ richness_treat_slopes <- lstrends(bray_v_richness, ~ Tile_arrangement_1, var = "
 spp_mean_sd<-community %>% 
   filter(!Time_point == "1") %>%
   summarize_at(vars(BARE:Turf), c(mean,sd)) 
+
+
+
+# END  #
