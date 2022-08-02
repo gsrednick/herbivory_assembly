@@ -1076,20 +1076,6 @@ richness_treat_slopes <- lstrends(bray_v_richness, ~ Tile_arrangement_1, var = "
 
 
 
-#### Extra stats #####
-
-## Regression between species richness and bray curtis distance -- for appendix
-## Also....place species evenness as a second axis (or bubble size) for bray curtis plot
-# "Does diversity drive pattern on mixed tiles; relative abundance driving pattern on simple tiles"
-
-
-
-## Species table 
-
-spp_mean_sd<-community %>% 
-  filter(!Time_point == "1") %>%
-  summarize_at(vars(BARE:Turf), c(mean,sd)) 
-
 
 
 # END  #
