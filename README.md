@@ -1,8 +1,7 @@
 # Supplementary code for Article in Ecology
 
-## Srednick et al. 2022
-
-## Title: Habitat attributes mediate herbivory and influence community development in algal metacommunities
+**Title: Habitat attributes mediate herbivory and influence community development in algal metacommunities**
+Srednick et al. 2022
 
 DOI and link to follow
 
