@@ -1,5 +1,10 @@
 #### Data curation --- Herbivory and asynchrony 
-# For Article in Ecology 2022
+
+# Title: 
+# DOI: 
+# Accepted as Article in Ecology
+# Srednick et al. 2022
+
 
 # Written by G.Srednick
 
@@ -8,14 +13,18 @@ library(tidyverse)
 
 
 
+
+
+setwd("~/Documents/Software/R/Tidy Workshop/Git/herbivory_asynchrony")
+
 # original data
 #exp_data<-read.csv("/Users/icarus2/Documents/Software/R/Tidy Workshop/Git/asynchrony_experiment_moorea/Data/experiment_data.csv")
 
 # reanalyzed with final datapoint
-exp_data<-read.csv("/Users/icarus2/Documents/Software/R/Tidy Workshop/Git/herbivory_asynchrony/Data/experiment_data_V2.csv")
-treat_table<-read.csv("/Users/icarus2/Documents/Software/R/Tidy Workshop/Git/herbivory_asynchrony/Data/treatments_table.csv")
-change_biomass<-read.csv("/Users/icarus2/Documents/Software/R/Tidy Workshop/Git/herbivory_asynchrony/Data/biomass_change_DATA.csv")
-#meta_table<-read.csv("/Users/icarus2/Documents/Software/R/Tidy Workshop/Git/herbivory_asynchrony/Data/meta_table.csv")
+exp_data<-read.csv("./Data/experiment_data_V2.csv")
+treat_table<-read.csv("./Data/treatments_table.csv")
+change_biomass<-read.csv("./Data/biomass_change_DATA.csv")
+#meta_table<-read.csv("./Data/meta_table.csv")
 
 meta_table<-exp_data %>% 
   select(2:8) %>%
@@ -174,5 +183,11 @@ change_biomass_actual<-merge(change_biomass,meta_table)
 change_biomass_actual<- change_biomass_actual %>% mutate(Bommie_treat = recode(Bommie_treat, 
                                                       Clean = "Low heterogeneity",
                                                       Turbinaria = "High heterogeneity"))
+
+
+
+# Now run author_script_herbivory_updated.R
+# Then run LMER_script.R
+
 
 ### END ###
