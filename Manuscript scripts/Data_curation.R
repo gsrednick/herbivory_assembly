@@ -1,4 +1,6 @@
 #### Data curation --- Herbivory and asynchrony 
+# For Article in Ecology 2022
+
 # Written by G.Srednick
 
 # Packages 

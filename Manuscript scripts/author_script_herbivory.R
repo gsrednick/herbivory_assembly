@@ -15,10 +15,14 @@ library(patchwork)
 library(pairwiseAdonis)
 library(codyn)
 library(reshape2)
+library(ggExtra)
+library(plyr)
+library(lme4)
+library(lmerTest)
 #library(ggforce)
 
 
-setwd("/Users/icarus2/Documents/Software/R/Tidy Workshop/Git/asynchrony_experiment_moorea")
+#setwd("/Users/icarus2/Documents/Software/R/Tidy Workshop/Git/asynchrony_experiment_moorea")
 
 
 # data
@@ -28,14 +32,6 @@ setwd("/Users/icarus2/Documents/Software/R/Tidy Workshop/Git/asynchrony_experime
 
 
 ######################################  Exploratory  ########################################################
-
-# change names for heterogeneity treatmetns
-summarized_controls_v2 <- summarized_controls %>%
-  mutate(Bommie_treat = recode(Bommie_treat, 
-                           Clean = "Low heterogeneity",
-                           Turbinaria = "High heterogeneity"))
-
-
 
 
 ### Initial effect tests ####
@@ -79,7 +75,9 @@ TukeyHSD(cage_effects_time_lm)
 
 
 
-## richness
+## Richness ####
+
+## Initial test for cages 
 
 # cage effects
 cage_effects_rich_lm <-aov(rich ~ Cage.treatment, data = exp_data_rich) 
@@ -103,6 +101,31 @@ hist(subset(exp_data_rich, Treatment == "Simple")$rich, col = "green")
 full_test_rich<-aov(rich ~ Cage.treatment * Treatment*as.factor(Day)*Block*Bommie_treat, data = exp_data_rich)
 summary(full_test_rich)
 # block effects exist
+
+
+
+# with random effect 
+
+full_test_rich<-aov(rich ~ 
+                      Cage.treatment * Treatment * Bommie_treat * as.factor(Day) +
+                      Error(Bommie_no),
+                      data = exp_data_rich_reduced)
+summary(full_test_rich)
+
+# the interaction between treatment and cage: no diff inside cages; diff outside
+
+exp_data_rich_reduced %>%
+  ggplot(aes(x = Cage.treatment,y = rich,color = Treatment)) +
+  geom_boxplot()
+
+# plan is:
+# (1) test cage effects
+# (2) reduce, then test full model with random block effects
+# (3)
+
+
+
+
 
 
 
@@ -278,7 +301,7 @@ cage_effect_int_rich<-ggplot(rich_short, aes(x=as.numeric(Time_point), y = rich,
 
 ## biomass
 biomass_short<-change_biomass %>% 
- filter(!Cage.treatment == "Control") %>%
+ #filter(!Cage.treatment == "Control") %>%
   mutate(Bommie_treat = recode(Bommie_treat, 
                                Clean = "Low heterogeneity",
                                Turbinaria = "High heterogeneity"))
@@ -555,22 +578,22 @@ ggsave("/Users/icarus2/Documents/Software/R/Tidy Workshop/Git/asynchrony_experim
 # Use PERMANOVA and MDS to detect differences in community structure across treatments
 
 community<-exp_data_corrected_nocontrol %>% 
-  filter(!Cage.treatment == "Cage",
-         !Time_point == "1") %>%
+  filter(!Cage.treatment == "Cage") %>%
   mutate(Bommie_treat = recode(Bommie_treat, 
                                Clean = "Low heterogeneity",
                                Turbinaria = "High heterogeneity"))
 
-community<-community[, colSums(community != 0) > 0]
+#community<-community[, colSums(community != 0) > 0]
 
-com_summarized <- community[c(12:28)]
+com_summarized <- community[c(12:30)]
 
 env_summarized <- community[c(1:11)]
 
 com_summarized_mds <- metaMDS(comm = com_summarized, distance = "bray", 
                               trace = FALSE, autotransform = TRUE, na.rm = FALSE)
-com_summarized_mds$stress # 0.08933897
+com_summarized_mds$stress # 0.08934329
 summary(com_summarized_mds)
+
 com_summarized_mds$species
 com_summarized_mds_points<-data.frame(com_summarized_mds$points)
 mds<-merge(env_summarized,com_summarized_mds_points, by="row.names", all.x=TRUE)
@@ -640,7 +663,7 @@ com_perm<-adonis(com_summarized ~ Tile_arrangement * Bommie_treat*Time_point,
 # cages 
 library(pairwiseAdonis)
 
-community_nocage<-exp_data_corrected[, colSums(exp_data_corrected != 0) > 0]
+#community_nocage<-exp_data_corrected[, colSums(exp_data_corrected != 0) > 0]
 
 com_nocage <- exp_data_corrected[c(12:28)]
 
@@ -677,11 +700,16 @@ block_perm<-adonis(com_nocage ~ Tile_arrangement*Bommie_treat*Block*Cage.treatme
 
 
 ##### Hypothesis 5A ####
+exp_data_corrected_sums_nocontrol_v3<-exp_data_corrected_sums_nocontrol[, colSums(exp_data_corrected_sums_nocontrol != 0) > 0]
+
+exp_data_corrected_sums_nocontrol_v3$Name <- NULL
+exp_data_corrected_sums_nocontrol_v3$algal_cover <- NULL
+exp_data_corrected_sums_nocontrol_v3$log_algalcover <- NULL
 
 
 ## Community synchrony ##
 long_data<-exp_data_corrected_sums_nocontrol_v3 %>%
-  pivot_longer(!c(Time_point,Date,Cage.treatment,Block,Treatment,Tile_no,Tile_arrangement,Bommie_treat,Bommie_no), names_to = "species", values_to = "cover")
+  pivot_longer(!c(Time_point,Date,Cage.treatment,Block,Treatment,Tile_no,Tile_arrangement,Bommie_treat,Bommie_no,Day), names_to = "species", values_to = "cover")
 
 
 com_dataframe<-long_data
@@ -954,9 +982,9 @@ names(Tile2_df)<-c("ID","value","Tile_no","Time_point")
 
 # Merge
 
-Tile_1_merged<-merge(env_bray[-c(1,8,10,12)],Tile1_df)
+Tile_1_merged<-merge(env_bray[-c(1,8,10,12)],Tile1_df) # col 12 remains -- this was changed
 
-Tile_2_merged<-merge(env_bray[-c(1,8,10,12)],Tile2_df)
+Tile_2_merged<-merge(env_bray[-c(1,8,10,12)],Tile2_df) # col 12 remains -- this was changed
 
 names(Tile_1_merged)
 # Rename 
@@ -990,8 +1018,7 @@ dist_merged_grouped<-dist_merged %>%
       Bommie_treat_1 == "Clean" & Bommie_treat_2 == "Turbinaria" ~ "NULL",
       Bommie_treat_1 == "Turbinaria" & Bommie_treat_2 == "Clean" ~ "NULL",
       Bommie_treat_1 == "Turbinaria" & Bommie_treat_2 == "Turbinaria" ~ "Turbinaria",
-      Bommie_treat_1 == "Clean" & Bommie_treat_2 == "Clean" ~ "Clean"),
-    Time_merged)
+      Bommie_treat_1 == "Clean" & Bommie_treat_2 == "Clean" ~ "Clean"))
 
 
 dist_merged_grouped_2<-dist_merged %>% 
@@ -1020,6 +1047,7 @@ dist_merged_grouped_3$Time_point_1<-revalue(dist_merged_grouped_3$Time_point_1, 
 # Replace NaN with zero -- this is from 0 dissimilarity for first time point
 dist_merged_grouped_3$value[is.nan(dist_merged_grouped_3$value)] <- 0
 
+write.csv(dist_merged_grouped_3,"/Users/icarus2/Documents/Software/R/Tidy Workshop/Git/herbivory_asynchrony/Data/Synchrony/bray_values.csv",row.names = F)
 
 
 # Plot this with tidyverse

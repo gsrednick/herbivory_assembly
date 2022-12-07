@@ -22,7 +22,6 @@ library(emmeans)
 ### a note --- not sure this is correct for dealing with crossed random effects. it might be something more like this
 ### another note. these tables are likely fine.....just put them in the appendix. Make them similar to Baumann et al. 2021
 
-# (1 + Treatment*Bommie_treat|Bommie_no)
 
 ## Cover ####
 exp_data_actual_time<-exp_data_actual %>% filter(!Time_point == "1")
@@ -478,8 +477,8 @@ bray_lmer<-lmer(value ~
                   Tile_arrangement_1 *
                   Bommie_treat_1 +
                   (1|Block/Bommie_no_1),
-                  data = dist_test_df,
-                  REML = T)
+                data = dist_test_df,
+                REML = T)
 
 summary(bray_lmer)
 anova(bray_lmer)
@@ -488,9 +487,27 @@ ranova(bray_lmer)
 dat <- ggpredict(bray_lmer, terms = c("Time_point_1","Tile_arrangement_1","Bommie_treat_1"))
 plot(dat,connect.lines = T)
 
-## END ##
+
+## In cages  ##
+
+dist_test_cage_df %>% dplyr::count(Time_point_1,Tile_arrangement_1,Bommie_treat_1,Block_1)
 
 
+bray_cage_lmer<-lmer(value ~ 
+                       Time_point_1 * 
+                       Tile_arrangement_1 *
+                       Bommie_treat_1 +
+                       (1|Block_1/Bommie_no_1),
+                     data = dist_test_cage_df,
+                     REML = T)
+summary(bray_cage_lmer)
+anova(bray_cage_lmer)
+ranova(bray_cage_lmer)
+
+dat <- ggpredict(bray_cage_lmer, terms = c("Time_point_1","Tile_arrangement_1","Bommie_treat_1"))
+plot(dat,connect.lines = T) +
+  theme_bw() +
+  removeGrid()
 
 
 #### Extra stuff ####
@@ -500,5 +517,15 @@ plot(dat,connect.lines = T)
 check_collinearity(rich_lmer_m1) # there is collinearality and heterogeneity of variances. -- log transform helps
 #performance::check_model(rich_lmer_m1) 
 #check_outliers(rich_lmer_m1)
+
+
+
+## END ##
+
+
+
+
+
+
 
 
