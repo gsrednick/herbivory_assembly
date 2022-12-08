@@ -13,12 +13,13 @@
 
 
 # packages
+devtools::install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
 
 library(tidyverse)
 library(vegan)
 #library(ggvegan)
 library(patchwork)
-#library(pairwiseAdonis)
+library(pairwiseAdonis)
 #library(codyn)
 library(reshape2)
 library(ggExtra)
@@ -633,7 +634,7 @@ env_control <- env_control %>% mutate_all(as.factor)
 
 
 # Permanova
-com_control_perm<-adonis(com_control ~ Treatment * 
+com_control_perm<-adonis2(com_control ~ Treatment * 
                            Cage.treatment * 
                            Bommie_treat*
                            Time_point*
@@ -665,7 +666,7 @@ env_cage <- as.data.frame(exp_data_actual_time_nocontrol[c(1:11)])
 env_cage <- env_cage %>% mutate_all(as.factor)
 
 # Permanova
-com_cage_perm<-adonis(com_cage ~ Treatment* 
+com_cage_perm<-adonis2(com_cage ~ Treatment* 
                        Cage.treatment* 
                        Bommie_treat*
                        Time_point*

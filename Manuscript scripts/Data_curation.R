@@ -22,8 +22,7 @@ setwd("~/Documents/Software/R/Tidy Workshop/Git/herbivory_asynchrony")
 
 # reanalyzed with final datapoint
 exp_data<-read.csv("./Data/experiment_data_V2.csv")
-treat_table<-read.csv("./Data/treatments_table.csv")
-change_biomass<-read.csv("./Data/biomass_change_DATA.csv")
+change_biomass<-read.csv("./Data/biomass_change_data.csv")
 #meta_table<-read.csv("./Data/meta_table.csv")
 
 meta_table<-exp_data %>% 
@@ -191,3 +190,4 @@ change_biomass_actual<- change_biomass_actual %>% mutate(Bommie_treat = recode(B
 
 
 ### END ###
+
